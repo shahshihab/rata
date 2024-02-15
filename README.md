@@ -1,2 +1,2 @@
 ## MAZE GAME
-maze
+Go on a heroic adventure with RatA!
