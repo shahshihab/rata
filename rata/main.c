@@ -1,7 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <GL/glut.h>
-#include <time.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<gl\glut.h>
+#include<math.h>
+#include<string.h>
+#include<time.h>
+#include<Windows.h>
+#include<mmsystem.h>
+
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -123,6 +128,7 @@ int main(int argc, char **argv) {
     ratCol = 0;
 
     glutDisplayFunc(drawMaze);
+    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
     glutSpecialFunc(specialKeys);
     glutMainLoop();
 
