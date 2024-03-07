@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 
     glutDisplayFunc(drawMaze);
 
-    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
+    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
     glutSpecialFunc(specialKeys);
     glutMainLoop();
 
