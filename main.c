@@ -1,14 +1,14 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<gl\glut.h>
+#include<GL/glut.h>
 #include<math.h>
 #include<string.h>
 #include<time.h>
 #include<Windows.h>
 #include<mmsystem.h>
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 620
+#define HEIGHT 620
 #define CELL_SIZE 20
 
 int maze[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
@@ -46,7 +46,7 @@ void generateMaze(int row, int col) {
         int r = row + dir[permutation[i]][0] * 2;
         int c = col + dir[permutation[i]][1] * 2;
         // cutting through the maze
-        if (r >= 0 && r <= HEIGHT / CELL_SIZE && c >= 0 && c <= WIDTH / CELL_SIZE && !visited[r][c]) {
+        if (r >= 0 && r < HEIGHT / CELL_SIZE && c >= 0 && c < WIDTH / CELL_SIZE && !visited[r][c]) {
             maze[row + dir[permutation[i]][0]][col + dir[permutation[i]][1]] = 1;
             // cutting adjacent cell in the same direction
             maze[row + dir[permutation[i]][0] * 2][col + dir[permutation[i]][1] * 2] = 1;
@@ -151,11 +151,18 @@ int main(int argc, char **argv) {
 
     generateMaze(1, 1);
 
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++) {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++) {
+            printf("%d ", visited[i][j]);
+        }
+        printf("\n");
+    }
+
     // Set entrance and exit positions
     entranceRow = 1;
     entranceCol = 1;
-    exitRow = HEIGHT / CELL_SIZE - 1;
-    exitCol = WIDTH / CELL_SIZE - 1;
+    exitRow = HEIGHT / CELL_SIZE - 2;
+    exitCol = WIDTH / CELL_SIZE - 2;
 
     // Set rat position at entrance
     ratRow = entranceRow;
@@ -163,7 +170,7 @@ int main(int argc, char **argv) {
 
     glutDisplayFunc(drawMaze);
 
-    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
+    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
     glutSpecialFunc(specialKeys);
     glutMainLoop();
 
