@@ -355,9 +355,13 @@
 	<mmsystem.h>
 	<iostream>
 
-1708791643 source:c:\users\asus\documents\ggg\rata\rata\main.c
+1709811154 source:c:\users\asus\documents\ggg\rata\rata\main.c
 	<stdio.h>
 	<stdlib.h>
-	<GL/glut.h>
+	<gl\glut.h>
+	<math.h>
+	<string.h>
 	<time.h>
+	<Windows.h>
+	<mmsystem.h>
 
