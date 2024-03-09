@@ -126,20 +126,30 @@ void drawStartMenu()
     glColor3f(0.0, 0.0, 0.0);// Black font
 
     // Draw menu options
-    glRasterPos2i(30, 100);
-    drawString("Note: The maze does not change when you start a new game.");
-    glRasterPos2i(30, 120);
-    drawString("If you lose, feel free to return to Start Menu and try again.");
-    glRasterPos2i(30, 160);
-    drawString("To try a new maze, quit the program and restart it.");
-    glRasterPos2i(200, 235);
+    glRasterPos2i(30, 235);
     drawString("Start Menu");
-    glRasterPos2i(200, 240);
+    glRasterPos2i(30, 240);
     drawString("...................");
-    glRasterPos2i(200, 260);
+    glRasterPos2i(30, 260);
     drawString("Press F1 to Start New Game");
-    glRasterPos2i(200, 280);
+    glRasterPos2i(30, 280);
     drawString("Press F2 to Quit");
+    glRasterPos2i(30, 315);
+    drawString("How to Play");
+    glRasterPos2i(30, 320);
+    drawString("....................");
+    glRasterPos2i(30, 340);
+    drawString("Use arrow keys to move and escape the maze before time runs out.");
+    glRasterPos2i(30, 380);
+    drawString("You are given 60 seconds to escape the maze.");
+    glRasterPos2i(30, 400);
+    drawString("The countdown starts the moment you start a new game.");
+    glRasterPos2i(30, 440);
+    drawString("The maze does not change when you start a new game.");
+    glRasterPos2i(30, 460);
+    drawString("If you lose, feel free to return to Start Menu and try again.");
+    glRasterPos2i(30, 500);
+    drawString("To try a new maze, quit the program and restart it.");
 }
 
 void drawTimer()
@@ -194,7 +204,7 @@ void drawMaze()
         drawString("YOU WIN!");
 
         // Return to start menu message
-        glColor3f(0.0, 1.0, 0.0);
+        glColor3f(0.0, 0.0, 0.0);
         glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
         drawString("Press F1 to return to Start Menu");
     }
@@ -206,7 +216,7 @@ void drawMaze()
         drawString("YOU LOSE!");
 
         // Return to start menu message
-        glColor3f(1.0, 0.0, 0.0);
+        glColor3f(0.0, 0.0, 0.0);
         glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
         drawString("Press F1 to return to Start Menu");
     }
