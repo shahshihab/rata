@@ -63,6 +63,24 @@ void generateMaze(int row, int col)
     }
 }
 
+void drawHelveticaString(const char* str)
+{
+    while (*str)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *str);
+        str++;
+    }
+}
+
+void drawRomanString(const char* str)
+{
+    while (*str)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *str);
+        str++;
+    }
+}
+
 void drawRat()
 {
     glColor3f(0.33, 0.0,0.0); // Brown color for rat
@@ -82,25 +100,17 @@ void drawRat()
 }
 
 
-void drawString(const char* str)
-{
-    while (*str)
-    {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *str);
-        str++;
-    }
-}
 
 
 void drawEntranceAndExit()
 {
-    glColor3f(1.0, 1.0, 0.0);// Yellow font
+    glColor3f(1.0, 1.0, 0.0); // Yellow font
 
     // Draw start and finish
     glRasterPos2i(0, 15);
-    drawString("START");
+    drawHelveticaString("START");
     glRasterPos2i(WIDTH - 40, HEIGHT - 5);
-    drawString("END");
+    drawHelveticaString("END");
 
     // Entrance (green)
     glColor3f(0.0, 1, 0.0); // Green color for entrance
@@ -123,48 +133,113 @@ void drawEntranceAndExit()
 
 void drawStartMenu()
 {
-    glColor3f(0.0, 0.0, 0.0);// Black font
+    glColor3f(0.0, 0.0, 0.0); // Black font
 
     // Draw menu options
     glRasterPos2i(30, 235);
-    drawString("Start Menu");
+    drawRomanString("Start Menu");
+
     glRasterPos2i(30, 240);
-    drawString("...................");
+    drawRomanString("...................");
+
     glRasterPos2i(30, 260);
-    drawString("Press F1 to Start New Game");
+    drawHelveticaString("Press F1 to Start New Game");
+
     glRasterPos2i(30, 280);
-    drawString("Press F2 to Quit");
+    drawHelveticaString("Press F2 to Quit");
+
     glRasterPos2i(30, 315);
-    drawString("How to Play");
+    drawRomanString("How to Play");
+
     glRasterPos2i(30, 320);
-    drawString("....................");
+    drawRomanString("....................");
+
     glRasterPos2i(30, 340);
-    drawString("Use arrow keys to move and escape the maze before time runs out.");
+    drawHelveticaString("Use arrow keys to move and escape the maze before time runs out.");
+
     glRasterPos2i(30, 380);
-    drawString("You are given 60 seconds to escape the maze.");
+    drawHelveticaString("You are given 60 seconds to escape the maze.");
+
     glRasterPos2i(30, 400);
-    drawString("The countdown starts the moment you start a new game.");
+    drawHelveticaString("The countdown starts the moment you start a new game.");
+
     glRasterPos2i(30, 440);
-    drawString("The maze does not change when you start a new game.");
+    drawHelveticaString("The maze does not change when you start a new game.");
+
     glRasterPos2i(30, 460);
-    drawString("If you lose, feel free to return to Start Menu and try again.");
+    drawHelveticaString("If you lose, feel free to return to Start Menu and try again.");
+
     glRasterPos2i(30, 500);
-    drawString("To try a new maze, quit the program and restart it.");
+    drawHelveticaString("To try a new maze, quit the program and restart it.");
 }
 
 void drawTimer()
 {
-    glColor3f(1.0, 0.0, 1.0);// Pink font
+    glColor3f(1.0, 0.0, 1.0); // Pink font
     glRasterPos2i(WIDTH - 100, 15);
     char timeStr[15];
     snprintf(timeStr, sizeof(timeStr), "Time: %d s", timer);
-    drawString(timeStr);
+    drawHelveticaString(timeStr);
 }
 
 void drawMaze()
 {
+    glColor3f(0.0, 0.0, 0.0); // Black walls
+    // Draw maze walls
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            if (maze[i][j] == 0)
+            {
+                glBegin(GL_QUADS);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glEnd();
+            }
+        }
+    }
+
+    drawEntranceAndExit();
+
+    drawRat();
+
+    drawTimer();
+
+}
+
+
+void winnerScreen()
+{
+    // Game over message (player wins)
+    glColor3f(0.0, 1.0, 0.0); // Green font
+    glRasterPos2i(WIDTH / 2 - 40, HEIGHT / 2);
+    drawRomanString("YOU WIN!");
+
+    // Return to start menu message
+    glColor3f(0.0, 0.0, 0.0);
+    glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
+    drawHelveticaString("Press F1 to return to Start Menu");
+}
+
+void loserScreen()
+{
+    // Game over message (player loses)
+    glColor3f(1.0, 0.0, 0.0); // Red font
+    glRasterPos2i(WIDTH / 2 - 40, HEIGHT / 2);
+    drawRomanString("YOU LOSE!");
+
+    // Return to start menu message
+    glColor3f(0.0, 0.0, 0.0);
+    glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
+    drawHelveticaString("Press F1 to return to Start Menu");
+}
+
+void display()
+{
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 0.0, 0.0);// Black walls
 
     if (gameState == 0)
     {
@@ -172,120 +247,92 @@ void drawMaze()
     }
     else if (gameState == 1)
     {
-        // Draw maze walls
-        for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
-        {
-            for (int j = 0; j < WIDTH / CELL_SIZE; j++)
-            {
-                if (maze[i][j] == 0)
-                {
-                    glBegin(GL_QUADS);
-                    glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
-                    glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
-                    glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
-                    glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
-                    glEnd();
-                }
-            }
-        }
-
-        drawEntranceAndExit();
-
-        drawRat();
-
-        drawTimer();
-
+        drawMaze();
     }
     else if (gameState == 2)
     {
-        // Game over message (player wins)
-        glColor3f(0.0, 1.0, 0.0); // Green font
-        glRasterPos2i(WIDTH / 2 - 40, HEIGHT / 2);
-        drawString("YOU WIN!");
-
-        // Return to start menu message
-        glColor3f(0.0, 0.0, 0.0);
-        glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
-        drawString("Press F1 to return to Start Menu");
+        winnerScreen();
     }
     else if (gameState == 3)
     {
-        // Game over message (player loses)
-        glColor3f(1.0, 0.0, 0.0); // Red font
-        glRasterPos2i(WIDTH / 2 - 40, HEIGHT / 2);
-        drawString("YOU LOSE!");
-
-        // Return to start menu message
-        glColor3f(0.0, 0.0, 0.0);
-        glRasterPos2i(WIDTH / 2 - 100, HEIGHT / 2 + 20);
-        drawString("Press F1 to return to Start Menu");
+        loserScreen();
     }
 
     glutSwapBuffers();
+}
+
+void handleStartMenuKeys(int key)
+{
+    if (key == GLUT_KEY_F1)   // Start new game
+    {
+        gameState = 1;
+        ratRow = entranceRow; // Set rat's position to entrance
+        ratCol = entranceCol;
+        timer = 60; // Reset timer
+        glutPostRedisplay();
+    }
+    else if (key == GLUT_KEY_F2)     // Quit
+    {
+        exit(0);
+    }
+}
+
+void handleInGameStateKeys(int key)
+{
+    switch (key)
+    {
+    case GLUT_KEY_UP:
+        if (ratRow > 0 && maze[ratRow - 1][ratCol] == 1)
+            ratRow--;
+        break;
+    case GLUT_KEY_DOWN:
+        if (ratRow < HEIGHT / CELL_SIZE - 1 && maze[ratRow + 1][ratCol] == 1)
+            ratRow++;
+        break;
+    case GLUT_KEY_LEFT:
+        if (ratCol > 0 && maze[ratRow][ratCol - 1] == 1)
+            ratCol--;
+        break;
+    case GLUT_KEY_RIGHT:
+        if (ratCol < WIDTH / CELL_SIZE - 1 && maze[ratRow][ratCol + 1] == 1)
+            ratCol++;
+        break;
+    }
+
+    // Check if the rat reached the exit
+    if (ratRow == exitRow && ratCol == exitCol)
+    {
+        gameState = 2; // Player wins
+    }
+
+    glutPostRedisplay();
+}
+
+void handleEndGameStateKeys(int key)
+{
+    if (key == GLUT_KEY_F1)   // Return to start menu
+    {
+        gameState = 0;
+        glutPostRedisplay();
+    }
 }
 
 void specialKeys(int key, int x, int y)
 {
     if (gameState == 0)
     {
-        if (key == GLUT_KEY_F1)   // Start new game
-        {
-            gameState = 1;
-            ratRow = entranceRow; // Set rat's position to entrance
-            ratCol = entranceCol;
-            timer = 60; // Reset timer
-            glutPostRedisplay();
-        }
-        else if (key == GLUT_KEY_F2)     // Quit
-        {
-            exit(0);
-        }
+        handleStartMenuKeys(key);
     }
     else if (gameState == 1)
     {
-        switch (key)
-        {
-        case GLUT_KEY_UP:
-            if (ratRow > 0 && maze[ratRow - 1][ratCol] == 1)
-                ratRow--;
-            break;
-        case GLUT_KEY_DOWN:
-            if (ratRow < HEIGHT / CELL_SIZE - 1 && maze[ratRow + 1][ratCol] == 1)
-                ratRow++;
-            break;
-        case GLUT_KEY_LEFT:
-            if (ratCol > 0 && maze[ratRow][ratCol - 1] == 1)
-                ratCol--;
-            break;
-        case GLUT_KEY_RIGHT:
-            if (ratCol < WIDTH / CELL_SIZE - 1 && maze[ratRow][ratCol + 1] == 1)
-                ratCol++;
-            break;
-        }
-
-        // Check if the rat reached the exit
-        if (ratRow == exitRow && ratCol == exitCol)
-        {
-            gameState = 2; // Player wins
-        }
-
-        // Check if time is up
-        if (timer <= 0)
-        {
-            gameState = 3; // Player loses
-        }
-
-        glutPostRedisplay();
+        handleInGameStateKeys(key);
     }
     else if (gameState == 2 || gameState == 3)
     {
-        if (key == GLUT_KEY_F1)   // Return to start menu
-        {
-            gameState = 0;
-            glutPostRedisplay();
-        }
+        handleEndGameStateKeys(key);
     }
 }
+
 
 void updateTimer(int value)
 {
@@ -313,6 +360,7 @@ int main(int argc, char **argv)
     {
         for (int j = 0; j < WIDTH / CELL_SIZE; j++)
         {
+            // Initializing with 0 for walls
             maze[i][j] = 0;
             visited[i][j] = 0;
         }
@@ -337,8 +385,8 @@ int main(int argc, char **argv)
     // Start timer
     glutTimerFunc(TIMER_INTERVAL, updateTimer, 0);
 
-    glutDisplayFunc(drawMaze);
-    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\candyland.wav"), NULL,  SND_ASYNC | SND_FILENAME | SND_LOOP);
+    glutDisplayFunc(display);
+    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\candyland.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
     glutSpecialFunc(specialKeys);
     glutMainLoop();
 
