@@ -99,9 +99,6 @@ void drawRat()
     glEnd();
 }
 
-
-
-
 void drawEntranceAndExit()
 {
     glColor3f(1.0, 1.0, 0.0); // Yellow font
@@ -377,6 +374,17 @@ int main(int argc, char **argv)
     // Set entrance and exit open
     maze[entranceRow][entranceCol] = 1;
     maze[exitRow][exitCol] = 1;
+
+     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            // Initializing with 0 for walls
+            if(maze[i][j]) printf("1 ");
+            else printf("0 ");
+        }
+        printf("\n");
+    }
 
     // Set rat position at entrance
     ratRow = entranceRow;
