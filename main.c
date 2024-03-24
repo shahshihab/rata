@@ -14,10 +14,11 @@
 
 int maze[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
 int visited[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
+int path[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
 int ratRow, ratCol;
 int entranceRow, entranceCol;
 int exitRow, exitCol;
-int gameState = 0; // 0: Start menu, 1: In-game, 2: Win, 3: Lose
+int gameState = 0; // 0: Start menu, 1: In-game, 2: Win, 3: Lose, 4: Show path
 int timer = 60; // Initial time in seconds
 
 void init()
@@ -61,6 +62,11 @@ void generateMaze(int row, int col)
             generateMaze(r, c);
         }
     }
+}
+
+void pathFinder()
+{
+
 }
 
 void drawHelveticaString(const char* str)
@@ -205,8 +211,56 @@ void drawMaze()
 
     drawTimer();
 
+    glColor3f(0.0, 1.0, 0.0);
+    glRasterPos2i(WIDTH / 2 - 100, HEIGHT - 5);
+    drawHelveticaString("Press F1 to Reveal Path");
 }
 
+void drawPath()
+{
+    glColor3f(0.0, 1.0, 0.0); // Green path
+    // Draw path
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            if (path[i][j] == 1)
+            {
+                glBegin(GL_QUADS);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glEnd();
+            }
+        }
+    }
+
+     glColor3f(0.0, 0.0, 0.0); // Black walls
+    // Draw maze walls
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            if (maze[i][j] == 0)
+            {
+                glBegin(GL_QUADS);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glEnd();
+            }
+        }
+    }
+
+    drawEntranceAndExit();
+
+    // Return to start menu message
+    glColor3f(0.0, 1.0, 0.0);
+    glRasterPos2i(WIDTH / 2 - 100, HEIGHT - 5);
+    drawHelveticaString("Press F1 to return to Start Menu");
+}
 
 void winnerScreen()
 {
@@ -254,6 +308,10 @@ void display()
     {
         loserScreen();
     }
+    else if (gameState == 4)
+    {
+        drawPath();
+    }
 
     glutSwapBuffers();
 }
@@ -294,6 +352,9 @@ void handleInGameStateKeys(int key)
         if (ratCol < WIDTH / CELL_SIZE - 1 && maze[ratRow][ratCol + 1] == 1)
             ratCol++;
         break;
+    case GLUT_KEY_F1:
+        gameState = 4;
+        break;
     }
 
     // Check if the rat reached the exit
@@ -324,7 +385,7 @@ void specialKeys(int key, int x, int y)
     {
         handleInGameStateKeys(key);
     }
-    else if (gameState == 2 || gameState == 3)
+    else if (gameState == 2 || gameState == 3 || gameState == 4)
     {
         handleEndGameStateKeys(key);
     }
@@ -360,6 +421,7 @@ int main(int argc, char **argv)
             // Initializing with 0 for walls
             maze[i][j] = 0;
             visited[i][j] = 0;
+            path[i][j] = 0;
         }
     }
 
@@ -375,7 +437,7 @@ int main(int argc, char **argv)
     maze[entranceRow][entranceCol] = 1;
     maze[exitRow][exitCol] = 1;
 
-     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
     {
         for (int j = 0; j < WIDTH / CELL_SIZE; j++)
         {
