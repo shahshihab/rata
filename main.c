@@ -3,6 +3,7 @@
 #include<GL/glut.h>
 #include<math.h>
 #include<string.h>
+#include<stdbool.h>
 #include<time.h>
 #include<Windows.h>
 #include<mmsystem.h>
@@ -64,9 +65,126 @@ void generateMaze(int row, int col)
     }
 }
 
-void pathFinder()
-{
+// Structure to represent a cell in the maze
+typedef struct {
+    int row, col;
+} Cell;
 
+//Cell queue[HEIGHT / CELL_SIZE * WIDTH / CELL_SIZE];
+//int front = 0, rear = -1;
+//
+//// Initialize the queue
+//void initQueue() {
+//    front = 0;
+//    rear = -1;
+//}
+//
+//// Check if the queue is empty
+//bool isEmpty() {
+//    return front > rear;
+//}
+//
+//// Enqueue a cell
+//void enqueue(Cell cell) {
+//    queue[++rear] = cell;
+//}
+//
+//// Eequeue a cell
+//Cell dequeue() {
+//    return queue[front++];
+//}
+//
+//// Perform breadth-first search
+//void pathFinder() {
+//    initQueue();
+//    memset(visited, 0, sizeof(visited)); // Reset visited matrix
+//
+//    // Initialize the queue with the entrance cell
+//    enqueue((Cell){entranceRow, entranceCol});
+//    visited[entranceRow][entranceCol] = 1;
+//
+//    while (!isEmpty()) {
+//        Cell current = dequeue();
+//
+//        // Check if we reached the exit
+//        if (current.row == exitRow && current.col == exitCol)
+//            return;
+//
+//        // Explore neighbors
+//        int dr[] = {-1, 1, 0, 0}; // Up, Down, Left, Right
+//        int dc[] = {0, 0, -1, 1};
+//
+//        for (int i = 0; i < 4; i++) {
+//            int nr = current.row + dr[i];
+//            int nc = current.col + dc[i];
+//
+//            // Check if the neighbor is within the maze bounds and is an open cell
+//            if (nr >= 0 && nr < HEIGHT / CELL_SIZE && nc >= 0 && nc < WIDTH / CELL_SIZE &&
+//                maze[nr][nc] == 1 && !visited[nr][nc]) {
+//                enqueue((Cell){nr, nc});
+//                visited[nr][nc] = 1;
+//                path[nr][nc] = 1; // Mark the cell in the path matrix
+//            }
+//        }
+//    }
+//}
+
+Cell stack[HEIGHT / CELL_SIZE * WIDTH / CELL_SIZE];
+int top = -1;
+
+// Initialize the stack
+void initStack() {
+    top = -1;
+}
+
+// Check if the stack is empty
+bool isStackEmpty() {
+    return top == -1;
+}
+
+// Push a cell onto the stack
+void push(Cell cell) {
+    stack[++top] = cell;
+}
+
+// Pop a cell from the stack
+Cell pop() {
+    return stack[top--];
+}
+
+// Perform depth-first search
+void pathFinder() {
+    initStack();
+    memset(visited, 0, sizeof(visited)); // Reset visited matrix
+
+    // Push the entrance cell onto the stack
+    push((Cell){entranceRow, entranceCol});
+
+    while (!isStackEmpty()) {
+        Cell current = pop();
+
+        // Mark the current cell as visited
+        visited[current.row][current.col] = 1;
+
+        // Check if we reached the exit
+        if (current.row == exitRow && current.col == exitCol)
+            return;
+
+        // Explore neighbors
+        int dr[] = {-1, 1, 0, 0}; // Up, Down, Left, Right
+        int dc[] = {0, 0, -1, 1};
+
+        for (int i = 0; i < 4; i++) {
+            int nr = current.row + dr[i];
+            int nc = current.col + dc[i];
+
+            // Check if the neighbor is within the maze bounds, is an open cell, and has not been visited
+            if (nr >= 0 && nr < HEIGHT / CELL_SIZE && nc >= 0 && nc < WIDTH / CELL_SIZE && maze[nr][nc] == 1 && !visited[nr][nc]) {
+                push((Cell){nr, nc});
+                path[nr][nc] = 1; // Mark the cell in the path matrix
+            }
+        }
+    }
 }
 
 void drawHelveticaString(const char* str)
@@ -437,16 +555,20 @@ int main(int argc, char **argv)
     maze[entranceRow][entranceCol] = 1;
     maze[exitRow][exitCol] = 1;
 
+    pathFinder();
+
+    //Draw on terminal
     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
     {
         for (int j = 0; j < WIDTH / CELL_SIZE; j++)
         {
             // Initializing with 0 for walls
-            if(maze[i][j]) printf("1 ");
+            if(path[i][j]) printf("1 ");
             else printf("0 ");
         }
         printf("\n");
     }
+
 
     // Set rat position at entrance
     ratRow = entranceRow;

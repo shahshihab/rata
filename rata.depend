@@ -365,12 +365,13 @@
 	<Windows.h>
 	<mmsystem.h>
 
-1711145463 source:c:\users\asus\documents\ggg\rata\main.c
+1711340690 source:c:\users\asus\documents\ggg\rata\main.c
 	<stdio.h>
 	<stdlib.h>
 	<GL/glut.h>
 	<math.h>
 	<string.h>
+	<stdbool.h>
 	<time.h>
 	<Windows.h>
 	<mmsystem.h>
