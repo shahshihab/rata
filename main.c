@@ -65,123 +65,84 @@ void generateMaze(int row, int col)
     }
 }
 
-// Structure to represent a cell in the maze
 typedef struct {
-    int row, col;
+    int row;
+    int col;
 } Cell;
 
-//Cell queue[HEIGHT / CELL_SIZE * WIDTH / CELL_SIZE];
-//int front = 0, rear = -1;
-//
-//// Initialize the queue
-//void initQueue() {
-//    front = 0;
-//    rear = -1;
-//}
-//
-//// Check if the queue is empty
-//bool isEmpty() {
-//    return front > rear;
-//}
-//
-//// Enqueue a cell
-//void enqueue(Cell cell) {
-//    queue[++rear] = cell;
-//}
-//
-//// Eequeue a cell
-//Cell dequeue() {
-//    return queue[front++];
-//}
-//
-//// Perform breadth-first search
-//void pathFinder() {
-//    initQueue();
-//    memset(visited, 0, sizeof(visited)); // Reset visited matrix
-//
-//    // Initialize the queue with the entrance cell
-//    enqueue((Cell){entranceRow, entranceCol});
-//    visited[entranceRow][entranceCol] = 1;
-//
-//    while (!isEmpty()) {
-//        Cell current = dequeue();
-//
-//        // Check if we reached the exit
-//        if (current.row == exitRow && current.col == exitCol)
-//            return;
-//
-//        // Explore neighbors
-//        int dr[] = {-1, 1, 0, 0}; // Up, Down, Left, Right
-//        int dc[] = {0, 0, -1, 1};
-//
-//        for (int i = 0; i < 4; i++) {
-//            int nr = current.row + dr[i];
-//            int nc = current.col + dc[i];
-//
-//            // Check if the neighbor is within the maze bounds and is an open cell
-//            if (nr >= 0 && nr < HEIGHT / CELL_SIZE && nc >= 0 && nc < WIDTH / CELL_SIZE &&
-//                maze[nr][nc] == 1 && !visited[nr][nc]) {
-//                enqueue((Cell){nr, nc});
-//                visited[nr][nc] = 1;
-//                path[nr][nc] = 1; // Mark the cell in the path matrix
-//            }
-//        }
-//    }
-//}
+Cell queue[HEIGHT * WIDTH]; // Queue for BFS
+int front = -1, rear = -1;
 
-Cell stack[HEIGHT / CELL_SIZE * WIDTH / CELL_SIZE];
-int top = -1;
-
-// Initialize the stack
-void initStack() {
-    top = -1;
+void enqueue(Cell cell) {
+    if (rear == HEIGHT * WIDTH - 1) {
+        printf("Queue is full\n");
+        return;
+    }
+    if (front == -1) {
+        front = 0;
+    }
+    rear++;
+    queue[rear] = cell;
 }
 
-// Check if the stack is empty
-bool isStackEmpty() {
-    return top == -1;
+Cell dequeue() {
+    if (front == -1 || front > rear) {
+        printf("Queue is empty\n");
+        exit(1);
+    }
+    Cell cell = queue[front];
+    front++;
+    return cell;
 }
 
-// Push a cell onto the stack
-void push(Cell cell) {
-    stack[++top] = cell;
+bool isEmpty() {
+    return front == -1 || front > rear;
 }
 
-// Pop a cell from the stack
-Cell pop() {
-    return stack[top--];
+bool isValid(int row, int col, int maze[][WIDTH / CELL_SIZE], int visited[][WIDTH / CELL_SIZE]) {
+    return (row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH && maze[row][col] == 1 && !visited[row][col]);
 }
 
-// Perform depth-first search
-void pathFinder() {
-    initStack();
-    memset(visited, 0, sizeof(visited)); // Reset visited matrix
+void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol, int exitRow, int exitCol, int path[][WIDTH / CELL_SIZE]) {
+    int visited[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
+    memset(visited, 0, sizeof(visited));
+    memset(path, 0, sizeof(path)); // Initialize path matrix
 
-    // Push the entrance cell onto the stack
-    push((Cell){entranceRow, entranceCol});
+    Cell entrance = {entranceRow, entranceCol};
+    enqueue(entrance);
+    visited[entranceRow][entranceCol] = 1;
 
-    while (!isStackEmpty()) {
-        Cell current = pop();
+    while (!isEmpty()) {
+        Cell current = dequeue();
+        int row = current.row;
+        int col = current.col;
 
-        // Mark the current cell as visited
-        visited[current.row][current.col] = 1;
+        // Check if reached exit
+        if (row == exitRow && col == exitCol) {
+            // Mark the path in the 'path' matrix
+            while (row != entranceRow || col != entranceCol) {
+                path[row][col] = 1;
+                Cell parent = queue[row * WIDTH + col];
+                row = parent.row;
+                col = parent.col;
+            }
+            // Mark entrance as part of the path
+            path[entranceRow][entranceCol] = 1;
+            break;
+        }
 
-        // Check if we reached the exit
-        if (current.row == exitRow && current.col == exitCol)
-            return;
-
-        // Explore neighbors
-        int dr[] = {-1, 1, 0, 0}; // Up, Down, Left, Right
-        int dc[] = {0, 0, -1, 1};
-
-        for (int i = 0; i < 4; i++) {
-            int nr = current.row + dr[i];
-            int nc = current.col + dc[i];
-
-            // Check if the neighbor is within the maze bounds, is an open cell, and has not been visited
-            if (nr >= 0 && nr < HEIGHT / CELL_SIZE && nc >= 0 && nc < WIDTH / CELL_SIZE && maze[nr][nc] == 1 && !visited[nr][nc]) {
-                push((Cell){nr, nc});
-                path[nr][nc] = 1; // Mark the cell in the path matrix
+        // Check neighbors
+        int rowOffsets[] = {-1, 0, 1, 0};
+        int colOffsets[] = {0, 1, 0, -1};
+        for (int i = 0; i < 4; ++i) {
+            int nextRow = row + rowOffsets[i];
+            int nextCol = col + colOffsets[i];
+            if (isValid(nextRow, nextCol, maze, visited)) {
+                Cell nextCell = {nextRow, nextCol};
+                enqueue(nextCell);
+                visited[nextRow][nextCol] = 1;
+                // Mark the parent cell for reconstructing the path later
+                queue[nextRow * WIDTH + nextCol] = current;
             }
         }
     }
@@ -555,7 +516,7 @@ int main(int argc, char **argv)
     maze[entranceRow][entranceCol] = 1;
     maze[exitRow][exitCol] = 1;
 
-    pathFinder();
+    pathFinder(maze, entranceRow, entranceCol, exitRow, exitCol, path);
 
     //Draw on terminal
     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
