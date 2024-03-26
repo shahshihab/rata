@@ -365,7 +365,7 @@
 	<Windows.h>
 	<mmsystem.h>
 
-1711395817 source:c:\users\asus\documents\ggg\rata\main.c
+1711437223 source:c:\users\asus\documents\ggg\rata\main.c
 	<stdio.h>
 	<stdlib.h>
 	<GL/glut.h>
@@ -375,6 +375,7 @@
 	<time.h>
 	<Windows.h>
 	<mmsystem.h>
+	<unistd.h>
 
 1711395381 source:c:\users\asus\documents\ggg\rata\main.cpp
 	<stdio.h>
@@ -386,4 +387,13 @@
 	<time.h>
 	<Windows.h>
 	<mmsystem.h>
+
+1512590989 c:\mingw\include\unistd.h
+	<_mingw.h>
+	"io.h"
+	"process.h"
+	"getopt.h"
+
+1512590989 c:\mingw\include\getopt.h
+	<_mingw.h>
 

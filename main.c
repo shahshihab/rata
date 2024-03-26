@@ -7,6 +7,7 @@
 #include<time.h>
 #include<Windows.h>
 #include<mmsystem.h>
+#include <unistd.h>
 
 #define WIDTH 620
 #define HEIGHT 620
@@ -100,11 +101,10 @@ bool isEmpty() {
 }
 
 bool isValid(int row, int col, int maze[][WIDTH / CELL_SIZE], int visited[][WIDTH / CELL_SIZE]) {
-    return (row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH && maze[row][col] == 1 && !visited[row][col]);
+    return (row >= 0 && row < HEIGHT / CELL_SIZE && col >= 0 && col < WIDTH / CELL_SIZE && maze[row][col] == 1 && !visited[row][col]);
 }
 
 void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol, int exitRow, int exitCol, int path[][WIDTH / CELL_SIZE]) {
-    int visited[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
     memset(visited, 0, sizeof(visited));
     memset(path, 0, sizeof(path)); // Initialize path matrix
 
@@ -134,6 +134,7 @@ void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol,
         // Check neighbors
         int rowOffsets[] = {-1, 0, 1, 0};
         int colOffsets[] = {0, 1, 0, -1};
+
         for (int i = 0; i < 4; ++i) {
             int nextRow = row + rowOffsets[i];
             int nextCol = col + colOffsets[i];
@@ -141,6 +142,7 @@ void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol,
                 Cell nextCell = {nextRow, nextCol};
                 enqueue(nextCell);
                 visited[nextRow][nextCol] = 1;
+
                 // Mark the parent cell for reconstructing the path later
                 queue[nextRow * WIDTH + nextCol] = current;
             }
@@ -252,6 +254,9 @@ void drawStartMenu()
     drawHelveticaString("If you lose, feel free to return to Start Menu and try again.");
 
     glRasterPos2i(30, 500);
+    drawHelveticaString("Revealing the path will end the game.");
+
+    glRasterPos2i(30, 540);
     drawHelveticaString("To try a new maze, quit the program and restart it.");
 }
 
@@ -297,23 +302,6 @@ void drawMaze()
 
 void drawPath()
 {
-    glColor3f(0.0, 1.0, 0.0); // Green path
-    // Draw path
-    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
-    {
-        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
-        {
-            if (path[i][j] == 1)
-            {
-                glBegin(GL_QUADS);
-                glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
-                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
-                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
-                glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
-                glEnd();
-            }
-        }
-    }
 
      glColor3f(0.0, 0.0, 0.0); // Black walls
     // Draw maze walls
@@ -334,6 +322,24 @@ void drawPath()
     }
 
     drawEntranceAndExit();
+
+    glColor3f(0.0, 1.0, 0.0); // Green path
+    // Draw path
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            if (path[i][j] == 1)
+            {
+                glBegin(GL_QUADS);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE);
+                glVertex2i(j * CELL_SIZE + CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glVertex2i(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE);
+                glEnd();
+            }
+        }
+    }
 
     // Return to start menu message
     glColor3f(0.0, 1.0, 0.0);
@@ -500,7 +506,6 @@ int main(int argc, char **argv)
             // Initializing with 0 for walls
             maze[i][j] = 0;
             visited[i][j] = 0;
-            path[i][j] = 0;
         }
     }
 
@@ -524,11 +529,28 @@ int main(int argc, char **argv)
         for (int j = 0; j < WIDTH / CELL_SIZE; j++)
         {
             // Initializing with 0 for walls
-            if(path[i][j]) printf("1 ");
+            if(maze[i][j]) printf("1 ");
             else printf("0 ");
         }
         printf("\n");
     }
+
+    // Save mazes in a .txt file
+    FILE *file = fopen("maze.txt", "a"); // Open the file in append mode
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        exit(1);
+    }
+    // Write maze data to the file
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++) {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++) {
+            if(maze[i][j] == 1) fprintf(file, "1 ");
+            else fprintf(file, "0 ");
+        }
+        fprintf(file, "\n");
+    }
+    fprintf(file, "\n");
+    fclose(file);
 
 
     // Set rat position at entrance
