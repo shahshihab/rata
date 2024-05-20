@@ -365,7 +365,7 @@
 	<Windows.h>
 	<mmsystem.h>
 
-1711437223 source:c:\users\asus\documents\ggg\rata\main.c
+1712175350 source:c:\users\asus\documents\ggg\rata\main.c
 	<stdio.h>
 	<stdlib.h>
 	<GL/glut.h>
@@ -375,7 +375,6 @@
 	<time.h>
 	<Windows.h>
 	<mmsystem.h>
-	<unistd.h>
 
 1711395381 source:c:\users\asus\documents\ggg\rata\main.cpp
 	<stdio.h>

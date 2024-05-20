@@ -7,12 +7,13 @@
 #include<time.h>
 #include<Windows.h>
 #include<mmsystem.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #define WIDTH 620
 #define HEIGHT 620
 #define CELL_SIZE 20
 #define TIMER_INTERVAL 1000 // Timer interval in milliseconds
+#define TIME_LIMIT 60
 
 int maze[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
 int visited[HEIGHT / CELL_SIZE][WIDTH / CELL_SIZE];
@@ -21,7 +22,7 @@ int ratRow, ratCol;
 int entranceRow, entranceCol;
 int exitRow, exitCol;
 int gameState = 0; // 0: Start menu, 1: In-game, 2: Win, 3: Lose, 4: Show path
-int timer = 60; // Initial time in seconds
+int timer;
 
 void init()
 {
@@ -60,7 +61,7 @@ void generateMaze(int row, int col)
         {
             maze[row + dir[permutation[i]][0]][col + dir[permutation[i]][1]] = 1;
             // Cutting adjacent cell in the same direction
-            maze[row + dir[permutation[i]][0] * 2][col + dir[permutation[i]][1] * 2] = 1;
+             maze[row + dir[permutation[i]][0] * 2][col + dir[permutation[i]][1] * 2] = 1;
             generateMaze(r, c);
         }
     }
@@ -71,7 +72,8 @@ typedef struct {
     int col;
 } Cell;
 
-Cell queue[HEIGHT * WIDTH]; // Queue for BFS
+// Queue for BFS
+Cell queue[HEIGHT * WIDTH];
 int front = -1, rear = -1;
 
 void enqueue(Cell cell) {
@@ -82,12 +84,17 @@ void enqueue(Cell cell) {
     if (front == -1) {
         front = 0;
     }
+    printf("%2d %2d\n",queue[rear].row, queue[rear].col);
     rear++;
     queue[rear] = cell;
 }
 
+bool isEmpty() {
+    return front == -1 || front > rear;
+}
+
 Cell dequeue() {
-    if (front == -1 || front > rear) {
+    if (isEmpty()) {
         printf("Queue is empty\n");
         exit(1);
     }
@@ -96,16 +103,13 @@ Cell dequeue() {
     return cell;
 }
 
-bool isEmpty() {
-    return front == -1 || front > rear;
-}
 
 bool isValid(int row, int col, int maze[][WIDTH / CELL_SIZE], int visited[][WIDTH / CELL_SIZE]) {
     return (row >= 0 && row < HEIGHT / CELL_SIZE && col >= 0 && col < WIDTH / CELL_SIZE && maze[row][col] == 1 && !visited[row][col]);
 }
 
 void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol, int exitRow, int exitCol, int path[][WIDTH / CELL_SIZE]) {
-    memset(visited, 0, sizeof(visited));
+    memset(visited, 0, sizeof(visited)); // Reset visited matrix
     memset(path, 0, sizeof(path)); // Initialize path matrix
 
     Cell entrance = {entranceRow, entranceCol};
@@ -119,7 +123,7 @@ void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol,
 
         // Check if reached exit
         if (row == exitRow && col == exitCol) {
-            // Mark the path in the 'path' matrix
+            // Mark the path
             while (row != entranceRow || col != entranceCol) {
                 path[row][col] = 1;
                 Cell parent = queue[row * WIDTH + col];
@@ -408,7 +412,7 @@ void handleStartMenuKeys(int key)
         gameState = 1;
         ratRow = entranceRow; // Set rat's position to entrance
         ratCol = entranceCol;
-        timer = 60; // Reset timer
+        timer = TIME_LIMIT; // Reset timer
         glutPostRedisplay();
     }
     else if (key == GLUT_KEY_F2)     // Quit
@@ -510,6 +514,29 @@ int main(int argc, char **argv)
     }
 
     generateMaze(1, 1);
+     //Draw on terminal
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            // Initializing with 0 for walls
+            if(maze[i][j]) printf("1 ");
+            else printf("0 ");
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
+    {
+        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
+        {
+            // Initializing with 0 for walls
+            if(visited[i][j]) printf("1 ");
+            else printf("0 ");
+        }
+        printf("\n");
+    }
 
     // Set entrance and exit positions
     entranceRow = 1;
@@ -523,17 +550,7 @@ int main(int argc, char **argv)
 
     pathFinder(maze, entranceRow, entranceCol, exitRow, exitCol, path);
 
-    //Draw on terminal
-    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
-    {
-        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
-        {
-            // Initializing with 0 for walls
-            if(maze[i][j]) printf("1 ");
-            else printf("0 ");
-        }
-        printf("\n");
-    }
+
 
     // Save mazes in a .txt file
     FILE *file = fopen("maze.txt", "a"); // Open the file in append mode
@@ -544,7 +561,7 @@ int main(int argc, char **argv)
     // Write maze data to the file
     for (int i = 0; i < HEIGHT / CELL_SIZE; i++) {
         for (int j = 0; j < WIDTH / CELL_SIZE; j++) {
-            if(maze[i][j] == 1) fprintf(file, "1 ");
+            if(maze[i][j]) fprintf(file, "1 ");
             else fprintf(file, "0 ");
         }
         fprintf(file, "\n");
