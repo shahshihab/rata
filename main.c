@@ -7,7 +7,6 @@
 #include<time.h>
 #include<Windows.h>
 #include<mmsystem.h>
-//#include <unistd.h>
 
 #define WIDTH 620
 #define HEIGHT 620
@@ -61,7 +60,7 @@ void generateMaze(int row, int col)
         {
             maze[row + dir[permutation[i]][0]][col + dir[permutation[i]][1]] = 1;
             // Cutting adjacent cell in the same direction
-             maze[row + dir[permutation[i]][0] * 2][col + dir[permutation[i]][1] * 2] = 1;
+            maze[row + dir[permutation[i]][0] * 2][col + dir[permutation[i]][1] * 2] = 1;
             generateMaze(r, c);
         }
     }
@@ -84,7 +83,6 @@ void enqueue(Cell cell) {
     if (front == -1) {
         front = 0;
     }
-    printf("%2d %2d\n",queue[rear].row, queue[rear].col);
     rear++;
     queue[rear] = cell;
 }
@@ -108,7 +106,7 @@ bool isValid(int row, int col, int maze[][WIDTH / CELL_SIZE], int visited[][WIDT
     return (row >= 0 && row < HEIGHT / CELL_SIZE && col >= 0 && col < WIDTH / CELL_SIZE && maze[row][col] == 1 && !visited[row][col]);
 }
 
-void pathFinder(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol, int exitRow, int exitCol, int path[][WIDTH / CELL_SIZE]) {
+void findPath(int maze[][WIDTH / CELL_SIZE], int entranceRow, int entranceCol, int exitRow, int exitCol, int path[][WIDTH / CELL_SIZE]) {
     memset(visited, 0, sizeof(visited)); // Reset visited matrix
     memset(path, 0, sizeof(path)); // Initialize path matrix
 
@@ -306,7 +304,6 @@ void drawMaze()
 
 void drawPath()
 {
-
      glColor3f(0.0, 0.0, 0.0); // Black walls
     // Draw maze walls
     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
@@ -514,7 +511,7 @@ int main(int argc, char **argv)
     }
 
     generateMaze(1, 1);
-     //Draw on terminal
+     //Draw maze on terminal
     for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
     {
         for (int j = 0; j < WIDTH / CELL_SIZE; j++)
@@ -527,17 +524,6 @@ int main(int argc, char **argv)
     }
     printf("\n");
 
-    for (int i = 0; i < HEIGHT / CELL_SIZE; i++)
-    {
-        for (int j = 0; j < WIDTH / CELL_SIZE; j++)
-        {
-            // Initializing with 0 for walls
-            if(visited[i][j]) printf("1 ");
-            else printf("0 ");
-        }
-        printf("\n");
-    }
-
     // Set entrance and exit positions
     entranceRow = 1;
     entranceCol = 1;
@@ -548,9 +534,8 @@ int main(int argc, char **argv)
     maze[entranceRow][entranceCol] = 1;
     maze[exitRow][exitCol] = 1;
 
-    pathFinder(maze, entranceRow, entranceCol, exitRow, exitCol, path);
-
-
+    // Find the solution path from entrance to exit
+    findPath(maze, entranceRow, entranceCol, exitRow, exitCol, path);
 
     // Save mazes in a .txt file
     FILE *file = fopen("maze.txt", "a"); // Open the file in append mode
@@ -578,8 +563,10 @@ int main(int argc, char **argv)
     glutTimerFunc(TIMER_INTERVAL, updateTimer, 0);
 
     glutDisplayFunc(display);
-    PlaySound(TEXT("C:\\Users\\ASUS\\Documents\\ggg\\rata\\candyland.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
+    PlaySound(TEXT("candyland.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
     glutSpecialFunc(specialKeys);
+
+    // Enter the main event loop
     glutMainLoop();
 
     return 0;
